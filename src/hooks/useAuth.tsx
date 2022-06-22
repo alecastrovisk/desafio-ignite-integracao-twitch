@@ -57,19 +57,23 @@ function AuthProvider({ children }: AuthProviderData) {
       `&state${STATE}`;
 
       const authResponse = await startAsync({ authUrl });
-
+      
       if(authResponse.type === 'success' && authResponse.params.error != 'access_denied'){
+        console.log('entrei no if');
         if(authResponse.params.state !== STATE){
           throw new Error('Invalid state value')
         }
-        api.defaults.headers.authorization = `Bearer ${authResponse.params.access_token}`;
 
+        api.defaults.headers.common['Authorizatiton'] = `Bearer ${authResponse.params.access_token}`;
+        //Não passa daqui
         const userResponse = await api.get('/users');
+        console.log('Consegui fazer o get', userResponse);
+
         const {
-           id, 
-           display_name, 
-           email, 
-           profile_image_url
+          id, 
+          display_name, 
+          email, 
+          profile_image_url
         } = userResponse.data.data[0];
 
         setUser({
@@ -78,9 +82,10 @@ function AuthProvider({ children }: AuthProviderData) {
           email,
           profile_image_url
         });
-        setUserToken(authResponse.params.access_token)
+        setUserToken(authResponse.params.access_token);
       }
     } catch (error) {
+      console.log('cai no catch')
       throw new Error();
     } finally {
       setIsLoggingIn(false);
@@ -104,7 +109,7 @@ function AuthProvider({ children }: AuthProviderData) {
   }
 
   useEffect(() => {
-    api.defaults.headers.common['Client-Id'] = CLIENT_ID as any;
+    api.defaults.headers.common['Client-Id'] = CLIENT_ID as string;
     // add client_id to request's "Client-Id" header
   }, [])
 
