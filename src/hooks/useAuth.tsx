@@ -58,16 +58,15 @@ function AuthProvider({ children }: AuthProviderData) {
 
       const authResponse = await startAsync({ authUrl });
       
-      if(authResponse.type === 'success' && authResponse.params.error != 'access_denied'){
-        console.log('entrei no if');
+      if(authResponse.type === 'success' && authResponse.params.error !== 'access_denied'){
         if(authResponse.params.state !== STATE){
           throw new Error('Invalid state value')
         }
 
-        api.defaults.headers.common['Authorizatiton'] = `Bearer ${authResponse.params.access_token}`;
-        //Não passa daqui
+        api.defaults.headers.common['Authorization'] = `Bearer ${authResponse.params.access_token}`;
+    
         const userResponse = await api.get('/users');
-        console.log('Consegui fazer o get', userResponse);
+        console.log(userResponse);
 
         const {
           id, 
@@ -85,7 +84,6 @@ function AuthProvider({ children }: AuthProviderData) {
         setUserToken(authResponse.params.access_token);
       }
     } catch (error) {
-      console.log('cai no catch')
       throw new Error();
     } finally {
       setIsLoggingIn(false);

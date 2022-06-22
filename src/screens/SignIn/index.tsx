@@ -27,7 +27,7 @@ export function SignIn() {
 
   async function handleSignIn() {
     try {
-      await signIn();
+      await signIn()
     } catch (error) {
       Alert.alert('Erro signIn', 'Não foi possível logar');
     }
