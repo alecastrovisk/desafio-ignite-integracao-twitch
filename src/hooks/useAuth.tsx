@@ -54,10 +54,11 @@ function AuthProvider({ children }: AuthProviderData) {
       `&response_type=${RESPONSE_TYPE}` +
       `&scope=${SCOPE}` +
       `&force_verify=${FORCE_VERIFY}` +
-      `&state${STATE}`;
+      `&state=${STATE}`;
 
       const authResponse = await startAsync({ authUrl });
-      
+
+      console.log(authResponse);
       if(authResponse.type === 'success' && authResponse.params.error !== 'access_denied'){
         if(authResponse.params.state !== STATE){
           throw new Error('Invalid state value')
@@ -81,6 +82,7 @@ function AuthProvider({ children }: AuthProviderData) {
           email,
           profile_image_url
         });
+
         setUserToken(authResponse.params.access_token);
       }
     } catch (error) {
@@ -92,17 +94,20 @@ function AuthProvider({ children }: AuthProviderData) {
 
   async function signOut() {
     try {
-      // set isLoggingOut to true
+      setIsLoggingOut(true);
 
-      // call revokeAsync with access_token, client_id and twitchEndpoint revocation
+      await revokeAsync(
+        { token: userToken, clientId: CLIENT_ID },
+        { revocationEndpoint: twitchEndpoints.revocation}
+      );
     } catch (error) {
     } finally {
-      // set user state to an empty User object
-      // set userToken state to an empty string
+      setUser({} as User);
+      setUserToken('');
+      
+      delete api.defaults.headers.common["Authorization"];
 
-      // remove "access_token" from request's authorization header
-
-      // set isLoggingOut to false
+      setIsLoggingOut(false)
     }
   }
 
